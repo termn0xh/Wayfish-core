@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.wayfish.Session
+Exec=cutefish-session

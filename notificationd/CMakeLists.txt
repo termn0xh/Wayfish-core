@@ -37,9 +37,11 @@ install(TARGETS cutefish-notificationd
     COMPONENT Runtime
 )
 
-file(GLOB TS_FILES translations/*.ts)
-qt5_create_translation(QM_FILES ${TS_FILES})
-add_custom_target(notificationd_translations DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
-add_dependencies(cutefish-notificationd notificationd_translations)
+if (ENABLE_TRANSLATIONS AND Qt5_LUPDATE_EXECUTABLE)
+    file(GLOB TS_FILES translations/*.ts)
+    qt5_create_translation(QM_FILES ${TS_FILES})
+    add_custom_target(notificationd_translations DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
+    add_dependencies(cutefish-notificationd notificationd_translations)
 
-install(FILES ${QM_FILES} DESTINATION /usr/share/cutefish-notificationd/translations)
+    install(FILES ${QM_FILES} DESTINATION /usr/share/cutefish-notificationd/translations)
+endif()

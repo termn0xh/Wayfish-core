@@ -77,10 +77,14 @@ target_link_libraries(${TARGET}
         PkgConfig::SYNAPTICS
 )
 
-file(GLOB TS_FILES translations/*.ts)
-qt5_create_translation(QM_FILES ${TS_FILES})
-add_custom_target(translations DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
-add_dependencies(${TARGET} translations)
+if (ENABLE_TRANSLATIONS AND Qt5_LUPDATE_EXECUTABLE)
+    file(GLOB TS_FILES translations/*.ts)
+    qt5_create_translation(QM_FILES ${TS_FILES})
+    add_custom_target(translations DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
+    add_dependencies(${TARGET} translations)
+endif()
 
 install(TARGETS ${TARGET} DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${TARGET}/translations)
+if (ENABLE_TRANSLATIONS AND Qt5_LUPDATE_EXECUTABLE)
+    install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${TARGET}/translations)
+endif()

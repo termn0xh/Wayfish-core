@@ -29,10 +29,12 @@ target_link_libraries(cutefish-polkit-agent
         ${POLKIT_AGENT_LDFLAGS}
 )
 
-file(GLOB TS_FILES translations/*.ts)
-qt5_create_translation(QM_FILES ${TS_FILES})
-add_custom_target(polkit-agent-translations DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
-add_dependencies(cutefish-polkit-agent polkit-agent-translations)
+if (ENABLE_TRANSLATIONS AND Qt5_LUPDATE_EXECUTABLE)
+    file(GLOB TS_FILES translations/*.ts)
+    qt5_create_translation(QM_FILES ${TS_FILES})
+    add_custom_target(polkit-agent-translations DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
+    add_dependencies(cutefish-polkit-agent polkit-agent-translations)
+endif()
 
 install(TARGETS cutefish-polkit-agent
     DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -45,4 +47,6 @@ cutefish-polkit-agent.desktop
     COMPONENT Runtime
 )
 
-install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cutefish-polkit-agent/translations)
+if (ENABLE_TRANSLATIONS AND Qt5_LUPDATE_EXECUTABLE)
+    install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cutefish-polkit-agent/translations)
+endif()

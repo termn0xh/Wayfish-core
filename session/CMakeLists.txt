@@ -33,3 +33,4 @@ target_link_libraries(${TARGET}
 
 install(TARGETS ${TARGET} DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES cutefish-xsession.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/xsessions/)
+install(FILES com.wayfish.Session.service DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/dbus-1/services)

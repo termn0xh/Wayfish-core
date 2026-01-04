@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+option(ENABLE_TRANSLATIONS "Build translations" ON)
+
 set(QT Core Gui Widgets Quick QuickControls2 DBus Xml X11Extras LinguistTools)
 find_package(Qt5 REQUIRED ${QT})
 # find_package(FishUI REQUIRED)
