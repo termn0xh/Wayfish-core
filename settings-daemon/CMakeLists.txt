@@ -49,7 +49,7 @@ qt5_add_dbus_adaptor(DBUS_SOURCES
                      language/com.cutefish.Language.xml
                      language/language.h Language)
 qt5_add_dbus_adaptor(DBUS_SOURCES
-                     dock/com.cutefish.Dock.xml
+                     dock/com.wayfish.Dock.xml
                      dock/dock.h Dock)
 qt5_add_dbus_adaptor(DBUS_SOURCES
                      mouse/com.cutefish.Mouse.xml

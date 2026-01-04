@@ -13,7 +13,7 @@ set(SOURCES
 )
 
 qt5_add_dbus_adaptor(DBUS_SOURCES
-                     com.cutefish.Session.xml
+                     com.wayfish.Session.xml
                      application.h Application
                      sessionadaptor SessionAdaptor)
 set_source_files_properties(${DBUS_SOURCES} PROPERTIES SKIP_AUTOGEN ON)

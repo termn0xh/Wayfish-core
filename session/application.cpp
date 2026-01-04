@@ -90,11 +90,11 @@ Application::Application(int &argc, char **argv)
     new SessionAdaptor(this);
 
     // connect to D-Bus and register as an object:
-    QDBusConnection::sessionBus().registerService(QStringLiteral("com.cutefish.Session"));
+    QDBusConnection::sessionBus().registerService(QStringLiteral("com.wayfish.Session"));
     QDBusConnection::sessionBus().registerObject(QStringLiteral("/Session"), this);
 
     QCommandLineParser parser;
-    parser.setApplicationDescription(QStringLiteral("Cutefish Session"));
+    parser.setApplicationDescription(QStringLiteral("Wayfish Session"));
     parser.addHelpOption();
 
     QCommandLineOption waylandOption(QStringList() << "w" << "wayland" << "Wayland Mode");
@@ -174,9 +174,16 @@ void Application::initEnvironments()
         qputenv("XDG_CONFIG_DIRS", "/etc/xdg");
 
     // Environment
-    qputenv("DESKTOP_SESSION", "Cutefish");
-    qputenv("XDG_CURRENT_DESKTOP", "Cutefish");
-    qputenv("XDG_SESSION_DESKTOP", "Cutefish");
+    const bool isWayland = m_wayland ||
+        !qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY") ||
+        qgetenv("XDG_SESSION_TYPE") == QByteArrayLiteral("wayland");
+
+    qputenv("DESKTOP_SESSION", "wayfish");
+    qputenv("XDG_CURRENT_DESKTOP", "Wayfish");
+    qputenv("XDG_SESSION_DESKTOP", "Wayfish");
+    if (isWayland) {
+        qputenv("XDG_SESSION_TYPE", "wayland");
+    }
 
     // Qt
     qputenv("QT_QPA_PLATFORMTHEME", "cutefish");

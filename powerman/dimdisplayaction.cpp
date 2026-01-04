@@ -73,9 +73,9 @@ void DimDisplayAction::onIdleTimeout(int msec)
 
         // Sleep
         if (m_sleep) {
-            QDBusInterface iface("com.cutefish.Session",
+            QDBusInterface iface("com.wayfish.Session",
                                  "/Session",
-                                 "com.cutefish.Session", QDBusConnection::sessionBus());
+                                 "com.wayfish.Session", QDBusConnection::sessionBus());
 
             if (iface.isValid()) {
                 iface.call("suspend");

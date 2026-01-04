@@ -22,8 +22,10 @@
 
 #include <QCoreApplication>
 #include <QStandardPaths>
+#include <QElapsedTimer>
 #include <QFileInfoList>
 #include <QFileInfo>
+#include <QFile>
 #include <QSettings>
 #include <QDebug>
 #include <QTimer>
@@ -43,12 +45,16 @@ ProcessManager::ProcessManager(Application *app, QObject *parent)
     , m_wmStarted(false)
     , m_waitLoop(nullptr)
 {
-    qApp->installNativeEventFilter(this);
+    if (!KWindowSystem::isPlatformWayland()) {
+        qApp->installNativeEventFilter(this);
+    }
 }
 
 ProcessManager::~ProcessManager()
 {
-    qApp->removeNativeEventFilter(this);
+    if (!KWindowSystem::isPlatformWayland()) {
+        qApp->removeNativeEventFilter(this);
+    }
 
     QMapIterator<QString, QProcess *> i(m_systemProcess);
     while (i.hasNext()) {
@@ -73,7 +79,7 @@ void ProcessManager::logout()
                              QDBusConnection::sessionBus());
 
     if (kwinIface.isValid()) {
-        kwinIface.call("aboutToSaveSession", "cutefish");
+        kwinIface.call("aboutToSaveSession", "wayfish");
         kwinIface.call("setState", uint(2)); // Quit
     }
 
@@ -93,17 +99,34 @@ void ProcessManager::logout()
 
 void ProcessManager::startWindowManager()
 {
-    QProcess *wmProcess = new QProcess;
-
-    wmProcess->start(m_app->wayland() ? "kwin_wayland" : "kwin_x11", QStringList());
+    if (!qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) {
+        qInfo() << "WAYLAND_DISPLAY set, assuming compositor is already running";
+        return;
+    }
 
     if (!m_app->wayland()) {
-        QEventLoop waitLoop;
-        m_waitLoop = &waitLoop;
-        // add a timeout to avoid infinite blocking if a WM fail to execute.
-        QTimer::singleShot(30 * 1000, &waitLoop, SLOT(quit()));
-        waitLoop.exec();
-        m_waitLoop = nullptr;
+        qWarning() << "Wayfish requires Wayland; skipping kwin_x11";
+        return;
+    }
+
+    QProcess *wmProcess = new QProcess;
+    wmProcess->start(QStringLiteral("kwin_wayland"), QStringList());
+
+    if (qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) {
+        qputenv("WAYLAND_DISPLAY", QByteArrayLiteral("wayland-0"));
+    }
+
+    const QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+    const QString socketPath = runtimeDir + "/" + qgetenv("WAYLAND_DISPLAY");
+
+    QElapsedTimer timer;
+    timer.start();
+    while (!QFile::exists(socketPath) && timer.elapsed() < 3000) {
+        QThread::msleep(50);
+    }
+
+    if (!QFile::exists(socketPath)) {
+        qWarning() << "Wayland socket not found at" << socketPath;
     }
 }
 
@@ -160,9 +183,14 @@ void ProcessManager::startDaemonProcess()
 {
     QList<QPair<QString, QStringList>> list;
     list << qMakePair(QString("cutefish-settings-daemon"), QStringList());
-    list << qMakePair(QString("cutefish-xembedsniproxy"), QStringList());
     list << qMakePair(QString("cutefish-gmenuproxy"), QStringList());
     list << qMakePair(QString("chotkeys"), QStringList());
+
+    if (!qEnvironmentVariableIsEmpty("DISPLAY")) {
+        list << qMakePair(QString("cutefish-xembedsniproxy"), QStringList());
+    } else {
+        qInfo() << "Skipping xembedsniproxy (no X11 DISPLAY)";
+    }
 
     for (QPair<QString, QStringList> pair : list) {
         QProcess *process = new QProcess;

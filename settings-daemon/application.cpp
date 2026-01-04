@@ -76,7 +76,7 @@ Application::Application(int &argc, char **argv)
 void Application::invokeDesktopProcess()
 {
     // Start desktop UI component.
-    QDBusInterface sessionInterface("com.cutefish.Session", "/Session", "com.cutefish.Session",
+    QDBusInterface sessionInterface("com.wayfish.Session", "/Session", "com.wayfish.Session",
                                     QDBusConnection::sessionBus());
 
     if (sessionInterface.isValid()) {

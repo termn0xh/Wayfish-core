@@ -23,9 +23,9 @@
 #include <QApplication>
 #include <QProcess>
 
-const static QString s_dbusName = "com.cutefish.Session";
+const static QString s_dbusName = "com.wayfish.Session";
 const static QString s_pathName = "/Session";
-const static QString s_interfaceName = "com.cutefish.Session";
+const static QString s_interfaceName = "com.wayfish.Session";
 
 Actions::Actions(QObject *parent)
     : QObject(parent)
